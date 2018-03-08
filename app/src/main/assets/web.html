@@ -1,0 +1,134 @@
+<html>
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <title>
+        js调用java
+    </title>
+</head>
+
+<body>
+<p>
+    <xmp id="show">Native将要回传回来的数据展示</xmp>
+</p>
+
+<p>
+    <input type="text" id="uname" value="用户名"/>
+</p>
+
+<p>
+    <input type="text" id="psw" value="密码"/>
+</p>
+
+<p>
+    <input type="button" id="send" value="发消息给Native" onclick="sendClick();"
+    />
+</p>
+
+<p>
+    <input type="button" id="use" value="调用Native方法" onclick="useClick();"
+    />
+</p>
+
+<p>
+    <input type="file" id="open" value="打开文件" onclick="onOpen();"/>
+</p>
+
+<p>
+    <a href="tel:110">拨打电话110</a>
+</p>
+
+<p>
+    <a href="http://www.baidu.com">webview浏览器</a>
+</p>
+
+<p>
+    <a href="https://www.csdn.net">调用系统浏览器</a>
+</p>
+</body>
+
+<script>
+
+    //Native方法直接调用，示例代码：mBridgeWebview.loadUrl("javascript:nativeFunction('" + data + "')");
+    function nativeFunction(data) {
+        document.getElementById("show").innerHTML = data;
+    }
+
+    //h5直接通过send向Native发送消息，在MyHandlerCallBack的Handler里接收，并可通过onCallBack方法回传
+    function sendClick() {
+        var name = document.getElementById("uname").value;
+        var pwd = document.getElementById("psw").value;
+        var data = "name = " + name + ", password = " + pwd;
+
+        window.WebViewJavascriptBridge.send(
+            data,
+            function(responseData) {
+                document.getElementById("show").innerHTML = responseData
+            }
+        );
+    }
+
+    //h5通过和Native统一命名方法名，如submitFromWeb来调取java代码，如mBridgeWebview.registerHandler("submitFromWeb", new BridgeHandler() {...});
+    function useClick() {
+            var name = document.getElementById("uname").value;
+            var pwd = document.getElementById("psw").value;
+            var data = "name = " + name + ", password = " + pwd;
+
+            window.WebViewJavascriptBridge.callHandler(
+                'submitFromWeb', {'info':data},
+                function(responseData) {
+                    document.getElementById("show").innerHTML = responseData;
+                }
+            );
+     }
+
+    function onOpen() {
+            var data = "调用文件";
+            //call native method
+            window.WebViewJavascriptBridge.callHandler(
+                'functionOpen'
+                , {'param': data }
+                , function(responseData) {
+                    document.getElementById("open").innerHTML = responseData;
+                }
+            );
+    }
+
+/****************************************************************/
+    function connectWebViewJavascriptBridge(callback) {
+            if (window.WebViewJavascriptBridge) {
+                callback(WebViewJavascriptBridge)
+            } else {
+                document.addEventListener(
+                    'WebViewJavascriptBridgeReady'
+                    , function() {
+                        callback(WebViewJavascriptBridge)
+                    },
+                    false
+                );
+            }
+        }
+
+    // 第一连接时初始化bridage
+    connectWebViewJavascriptBridge(function(bridge) {
+            //也注册默认的Handler，用来接收java调用的send方法传来的数据，但是此处message无值，待确认
+            bridge.init(function(message, responseCallback) {
+                console.log('JS got a message', message);
+                var data = {
+                    'Javascript Responds': '测试中文!'
+                };
+                console.log('JS responding with', data);
+                responseCallback(data);
+            });
+            //注册handler等待java代码调用
+            //初始化时获取数据是调用此处代码
+            //参数：标识，要传递到JAVA的数据，回调方法。
+            //JAVA代码响应的方法：mBridgeWebview.callHandler("functionInJs", new Gson().toJson(实体类对象), new CallBackFunction(){onCallBack(String data)}
+            bridge.registerHandler("functionInJs", function(data, responseCallback) {
+                document.getElementById("show").innerHTML = ("data from Java: = " + data);
+                var responseData = "I am javascript, Data reception success!";
+                responseCallback(responseData);
+            });
+    })
+/****************************************************************/
+</script>
+</html>
