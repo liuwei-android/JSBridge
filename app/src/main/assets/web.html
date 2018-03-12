@@ -110,7 +110,7 @@
 
     // 第一连接时初始化bridage
     connectWebViewJavascriptBridge(function(bridge) {
-            //也注册默认的Handler，用来接收java调用的send方法传来的数据，但是此处message无值，待确认
+            //也注册默认的Handler，用来接收java调用的send(string,CallBackFunction)方法
             bridge.init(function(message, responseCallback) {
                 console.log('JS got a message', message);
                 var data = {

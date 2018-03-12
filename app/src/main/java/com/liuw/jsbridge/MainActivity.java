@@ -103,8 +103,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //H5中的bridge.init处理，但是只收到通知，没有接收到具体值，此处未解？
-        mBridgeWebview.send("来自Native的发送消息！！！");
+        //对应js中的bridge.init处理，此处需加CallBackFunction,如果只使用mBridgeWebview.send("")；会导致js中只收到通知，接收不到值
+        mBridgeWebview.send("来自java的发送消息！！！", new CallBackFunction() {
+            @Override
+            public void onCallBack(String data) {
+                Toast.makeText(MainActivity.this, "bridge.init初始化数据成功" + data, Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 
