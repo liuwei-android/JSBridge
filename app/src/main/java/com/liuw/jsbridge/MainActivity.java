@@ -63,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
         mBridgeWebview.setWebViewClient(new MyWebViewClient(mBridgeWebview, MainActivity.this));
         //Handler做为通信桥梁的作用，接收处理来自H5数据及回传Native数据的处理，当h5调用send()发送消息的时候，调用MyHandlerCallBack
         mBridgeWebview.setDefaultHandler(new MyHandlerCallBack(mOnSendDataListener));
-
         //WebChromeClient主要辅助WebView处理Javascript的对话框、网站图标、网站title、加载进度等比等，不过它还能处理文件上传操作
         mBridgeWebview.setWebChromeClient(new MyChromeWebClient());
         // 如果不加这一行，当点击界面链接，跳转到外部时，会出现net::ERR_CACHE_MISS错误
